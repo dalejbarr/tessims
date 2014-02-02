@@ -10,7 +10,8 @@ gendata <- function(eff=.6,sdd=1,sample_size=24) {
     esteff <- estmeans[2]-estmeans[1]
     estsd <- sd(dat$Y)
     ttest <- with(dat, t.test(Y~Group, var.equal=TRUE))
-    return(c(pow=esteff/estsd, p=ttest$p.value,
+    pow <- power.t.test(sample_size, esteff, estsd)
+    return(c(pow=pow$power, p=ttest$p.value,
              sig=ttest$p.value<=.05))
 }
 
@@ -35,11 +36,13 @@ doAttempts <- function(eff_size=.3, number_per_paper=5, number_of_attempts=1000)
           function(x) {geom_mean(x["pow",x["sig",]==1])})
 }
 
-eff3 <- doAttempts(.3, 4, 10000) # eff size .3, 4 expts per paper, 1000 attempts
-eff6 <- doAttempts(.6, 4, 10000) # eff size .6, 4 expts per paper, 1000 attempts
+eff3 <- doAttempts(.3, 4, 1000) # eff size .3, 4 expts per paper, 1000 attempts
+eff6 <- doAttempts(.6, 4, 1000) # eff size .6, 4 expts per paper, 1000 attempts
+eff9 <- doAttempts(.9, 4, 1000) # eff size .6, 4 expts per paper, 1000 attempts
 
 threshold <- .1
 
 # calc percent falling below threshold
 sum(eff3 < threshold) / length(eff3) # eff size 3
 sum(eff6 < threshold) / length(eff6) # eff size 6
+sum(eff9 < threshold) / length(eff9) # eff size 6
