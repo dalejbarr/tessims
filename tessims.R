@@ -15,15 +15,6 @@ gendata <- function(eff=.6,sdd=1,sample_size=24) {
              sig=ttest$p.value<=.05))
 }
 
-# there must be a function for this somewhere in R??
-geom_mean <- function(x) {
-    tot <- 1
-    for (i in 1:length(x)) {
-        tot <- tot * x[i]
-    }
-    return(tot)
-}
-
 doAttempts <- function(eff_size=.3, number_per_paper=5, number_of_attempts=1000) {
     allstuds <- raply(number_of_attempts,
                       replicate(number_per_paper, gendata(eff=eff_size)))
@@ -33,16 +24,18 @@ doAttempts <- function(eff_size=.3, number_per_paper=5, number_of_attempts=1000)
     published <- allstuds[lix,,]
     # calculate and return all TESs for published studies
     apply(published, 1,
-          function(x) {geom_mean(x["pow",x["sig",]==1])})
+          function(x) {prod(x["pow",x["sig",]==1])})
 }
 
-eff3 <- doAttempts(.3, 4, 1000) # eff size .3, 4 expts per paper, 1000 attempts
-eff6 <- doAttempts(.6, 4, 1000) # eff size .6, 4 expts per paper, 1000 attempts
-eff9 <- doAttempts(.9, 4, 1000) # eff size .6, 4 expts per paper, 1000 attempts
+eff3 <- doAttempts(.3, 4, 10000) # eff size .3, 4 expts per paper, 1000 attempts
+eff5 <- doAttempts(.5, 4, 10000) # eff size .6, 4 expts per paper, 1000 attempts
+eff6 <- doAttempts(.6, 4, 10000) # eff size .6, 4 expts per paper, 1000 attempts
+eff9 <- doAttempts(.9, 4, 10000) # eff size .6, 4 expts per paper, 1000 attempts
 
 threshold <- .1
 
 # calc percent falling below threshold
 sum(eff3 < threshold) / length(eff3) # eff size 3
+sum(eff5 < threshold) / length(eff5) # eff sttize 6
 sum(eff6 < threshold) / length(eff6) # eff size 6
 sum(eff9 < threshold) / length(eff9) # eff size 6
